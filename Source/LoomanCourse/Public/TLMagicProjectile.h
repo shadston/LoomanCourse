@@ -30,8 +30,15 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UProjectileMovementComponent* MovementComp;
 
+	UPROPERTY(EditAnywhere)
+	float ProjectileLifetime = 5.0f;
+
+	FTimerHandle TimerHandle_Lifetime;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void DestroyProjectile();
 
 public:	
 	// Called every frame

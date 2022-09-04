@@ -31,12 +31,16 @@ void ATLMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	GetWorldTimerManager().SetTimer(TimerHandle_Lifetime, this, &ATLMagicProjectile::DestroyProjectile, ProjectileLifetime);
 }
 
 // Called every frame
 void ATLMagicProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
+void ATLMagicProjectile::DestroyProjectile()
+{
+	Destroy();
+}

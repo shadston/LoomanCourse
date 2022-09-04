@@ -8,6 +8,8 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UTLInteractionComponent;
+class UAnimMontage;
 
 UCLASS()
 class LOOMANCOURSE_API ATLCharacter : public ACharacter
@@ -26,8 +28,20 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
+	UTLInteractionComponent* InteractionComp;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
 	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackAnim;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	float AttackDelay = 0.2f;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
+	bool bCanAttack = true;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -36,6 +50,8 @@ protected:
 	void MoveRight(float Value);
 
 	void PrimaryAttack();
+	void PrimaryInteract();
+	void PrimaryAttack_TimeElapsed();
 
 public:	
 	// Called every frame
