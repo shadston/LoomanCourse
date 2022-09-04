@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "TLCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 
 // Sets default values
@@ -13,23 +13,26 @@ ATLCharacter::ATLCharacter()
 
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
 	SpringArmComp->SetupAttachment(RootComponent);
+	SpringArmComp->bUsePawnControlRotation = true;
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	bUseControllerRotationYaw = false;
 }
 
 // Called when the game starts or when spawned
 void ATLCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ATLCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -38,12 +41,40 @@ void ATLCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ATLCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ATLCharacter::MoveRight);
 
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ATLCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATLCharacter::Jump);
 }
 
 void ATLCharacter::MoveForward(float Value)
 {
-	AddMovementInput(GetActorForwardVector(), Value);
+	FRotator ControlRot = GetControlRotation();
+	ControlRot.Pitch = 0.0f;
+	ControlRot.Roll = 0.0f;
+
+	AddMovementInput(ControlRot.Vector(), Value);
 }
 
+void ATLCharacter::MoveRight(float Value)
+{
+	FRotator ControlRot = GetControlRotation();
+	ControlRot.Pitch = 0.0f;
+	ControlRot.Roll = 0.0f;
+
+	FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
+	AddMovementInput(RightVector, Value);
+}
+
+void ATLCharacter::PrimaryAttack()
+{
+	FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+	FTransform SpawnTM = FTransform(GetActorRotation(), HandLocation);
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
