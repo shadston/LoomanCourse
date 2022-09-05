@@ -37,7 +37,6 @@ void ATLExplosives::BeginPlay()
 void ATLExplosives::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	RadialForceComp->FireImpulse();
-	OtherActor->Destroy();
 }
 
 // Called every frame
